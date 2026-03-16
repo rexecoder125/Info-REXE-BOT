@@ -1,59 +1,57 @@
-import logging
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
-from config import BOT_TOKEN
-from utils.osint import osint_menu
-from utils.crypto import crypto_menu
-from utils.tools import tools_menu
-from utils.generate import generate_menu
-from utils.owner import owner_menu
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-logging.basicConfig(level=logging.INFO)
+TOKEN = "8743764310:AAEMf60TbwvipGC9N6f2xRFgWvPdDZb7j0I"
 
-# ---------- START COMMAND ----------
+
+# ====== Commands =======
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = [
-        [InlineKeyboardButton("🔍 OSINT", callback_data="osint")],
-        [InlineKeyboardButton("💰 Crypto", callback_data="crypto")],
-        [InlineKeyboardButton("🛠 Tools", callback_data="tools")],
-        [InlineKeyboardButton("⚡ Generate", callback_data="generate")],
-        [InlineKeyboardButton("👑 Owner", callback_data="owner")]
-    ]
-
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
     await update.message.reply_text(
-        "🔥 INFO-REXE-BOT Activated!\nChoose a category:",
-        reply_markup=reply_markup
+        "🔥 INFO-REXE-BOT Activated!\n"
+        "Menu Ready:\n"
+        "[ OSINT ]\n[ Crypto ]\n[ Tools ]\n[ Generate ]\n[ Owner ]"
     )
 
-# ---------- CALLBACK HANDLER ----------
-async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    data = query.data
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "📌 Available Commands:\n"
+        "/start – Start Bot\n"
+        "/help – Help Menu\n"
+        "/osint – OSINT Tools\n"
+        "/crypto – Crypto Tools\n"
+        "/tools – Tools Section\n"
+        "/generate – Generate Tools\n"
+        "/owner – Owner Info"
+    )
 
-    if data == "osint":
-        await osint_menu(query)
-    elif data == "crypto":
-        await crypto_menu(query)
-    elif data == "tools":
-        await tools_menu(query)
-    elif data == "generate":
-        await generate_menu(query)
-    elif data == "owner":
-        await owner_menu(query)
+async def osint(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("🔍 OSINT Tools Loading…")
 
-    await query.answer()
+async def crypto(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("💰 Crypto Scanner Coming…")
 
-# ---------- MAIN RUN ----------
-def main():
-    app = ApplicationBuilder().token(BOT_TOKEN).build()
+async def tools(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("🛠 Tools Coming Soon…")
 
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CallbackQueryHandler(callback_handler))
+async def generate(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("⚙️ Generator Tools Loading…")
 
-    print("Bot Running…")
-    app.run_polling()
+async def owner(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("👑 Owner: @Cyberrexetools_bot")
 
-if __name__ == "__main__":
-    main()
+
+# ====== Application ======
+
+app = ApplicationBuilder().token(TOKEN).build()
+
+app.add_handler(CommandHandler("start", start))
+app.add_handler(CommandHandler("help", help_command))
+app.add_handler(CommandHandler("osint", osint))
+app.add_handler(CommandHandler("crypto", crypto))
+app.add_handler(CommandHandler("tools", tools))
+app.add_handler(CommandHandler("generate", generate))
+app.add_handler(CommandHandler("owner", owner))
+
+# Run Bot
+app.run_polling()
