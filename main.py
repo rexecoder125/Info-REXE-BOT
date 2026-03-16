@@ -9,9 +9,6 @@ TOKEN = "8743764310:AAEMf60TbwvipGC9N6f2xRFgWvPdDZb7j0I"
 OWNER_ID = 7027444755
 # ==========================
 
-# ------------------------------
-# Start Menu UI
-# ------------------------------
 MAIN_MENU = InlineKeyboardMarkup([
     [InlineKeyboardButton("🕵️ OSINT", callback_data="osint_menu")],
     [InlineKeyboardButton("💰 Crypto", callback_data="crypto_menu")],
@@ -22,73 +19,51 @@ MAIN_MENU = InlineKeyboardMarkup([
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "🔥 INFO-REXE BOT Online!\nSelect a category below:",
+        "🔥 INFO-REXE BOT Online!\nSelect Category:",
         reply_markup=MAIN_MENU
     )
 
-# ------------------------------  
-# MENU CALLBACKS
-# ------------------------------
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
+    q = update.callback_query
+    await q.answer()
+    d = q.data
 
-    data = query.data
-
-    # OSINT Menu
-    if data == "osint_menu":
-        await query.edit_message_text(
+    if d == "osint_menu":
+        await q.edit_message_text(
             "🕵️ OSINT Tools:\n\n"
-            "/ip <ip>\n"
-            "/user <username>\n"
-            "/whois <domain>\n"
-            "/instainfo <username>",
+            "/ip <ip>\n/user <username>\n/whois <domain>\n/instainfo <username>",
             reply_markup=MAIN_MENU
         )
 
-    # Crypto Menu
-    elif data == "crypto_menu":
-        await query.edit_message_text(
-            "💰 Crypto Tools:\n\n"
-            "/btc\n/eth\n/doge",
+    elif d == "crypto_menu":
+        await q.edit_message_text(
+            "💰 CRYPTO MENU:\n\n/btc\n/eth\n/doge",
             reply_markup=MAIN_MENU
         )
 
-    # Tools Menu
-    elif data == "tools_menu":
-        await query.edit_message_text(
-            "🛠 Tools:\n\n"
-            "/bin <bin>\n"
-            "/qrcode <text>\n"
-            "/fake\n"
-            "/pwd",
+    elif d == "tools_menu":
+        await q.edit_message_text(
+            "🛠 TOOLS:\n\n/bin <bin>\n/qrcode <text>\n/fake\n/pwd",
             reply_markup=MAIN_MENU
         )
 
-    # Generate Menu
-    elif data == "gen_menu":
-        await query.edit_message_text(
-            "⚡ Generate Options:\n\n"
-            "/pass\n/fake\n",
+    elif d == "gen_menu":
+        await q.edit_message_text(
+            "⚡ GENERATE:\n\n/pass\n/fake\n",
             reply_markup=MAIN_MENU
         )
 
-    # Owner Menu
-    elif data == "owner_menu":
-        await query.edit_message_text(
-            "👑 OWNER PANEL:\nOnly ReXe Can Use.\n\n"
-            "/stats\n/broadcast <msg>",
+    elif d == "owner_menu":
+        await q.edit_message_text(
+            "👑 OWNER PANEL:\n/stats\n/broadcast <msg>",
             reply_markup=MAIN_MENU
         )
 
-# ===================================================================
-# 🔥 OSINT FUNCTIONS
-# ===================================================================
 
-# IP Lookup
+# ------ OSINT ------
 async def ip_lookup(update, context):
     if not context.args:
-        return await update.message.reply_text("Use: /ip 1.1.1.1")
+        return await update.message.reply_text("Usage: /ip 1.1.1.1")
 
     ip = context.args[0]
     r = requests.get(f"http://ip-api.com/json/{ip}").json()
@@ -104,172 +79,156 @@ Status: {r.get('status')}
 """
     await update.message.reply_text(msg, parse_mode="Markdown")
 
-# USER OSINT
+
 async def user_osint(update, context):
     if not context.args:
-        return await update.message.reply_text("Use: /user username")
+        return await update.message.reply_text("Usage: /user username")
 
     u = context.args[0]
     r = requests.get(f"https://api.github.com/users/{u}").json()
 
     msg = f"""
-🕵️ *Username OSINT*
+🕵️ USER OSINT
 User: {u}
 Name: {r.get("name")}
 Bio: {r.get("bio")}
 Followers: {r.get("followers")}
-Public Repo: {r.get("public_repos")}
+Repos: {r.get("public_repos")}
 Profile: {r.get("html_url")}
 """
     await update.message.reply_text(msg)
 
-# WHOIS
+
 async def whois(update, context):
     if not context.args:
         return await update.message.reply_text("Use: /whois example.com")
-    domain = context.args[0]
-    r = requests.get(f"https://api.hackertarget.com/whois/?q={domain}").text
+    d = context.args[0]
+    r = requests.get(f"https://api.hackertarget.com/whois/?q={d}").text
     await update.message.reply_text(r)
 
-# Insta Info (Free)
+
 async def instainfo(update, context):
     if not context.args:
         return await update.message.reply_text("Use: /instainfo username")
 
     user = context.args[0]
     url = f"https://www.instagram.com/{user}/?__a=1&__d=dis"
-    
+
     try:
         r = requests.get(url).json()
-        name = r["graphql"]["user"]["full_name"]
-        followers = r["graphql"]["user"]["edge_followed_by"]["count"]
-        following = r["graphql"]["user"]["edge_follow"]["count"]
+        u = r["graphql"]["user"]
 
         msg = f"""
 📸 *Instagram Info*
 User: {user}
-Name: {name}
-Followers: {followers}
-Following: {following}
+Name: {u["full_name"]}
+Followers: {u["edge_followed_by"]["count"]}
+Following: {u["edge_follow"]["count"]}
 """
     except:
-        msg = "❌ Account Not Found / Private."
+        msg = "❌ Not Found or Private"
 
     await update.message.reply_text(msg, parse_mode="Markdown")
 
-# ===================================================================
-# 💰 CRYPTO PRICE API
-# ===================================================================
 
+# ------ CRYPTO ------
 async def btc(update, context):
     p = requests.get("https://api.coindesk.com/v1/bpi/currentprice/BTC.json").json()["bpi"]["USD"]["rate"]
-    await update.message.reply_text(f"₿ BTC Price: ${p}")
+    await update.message.reply_text(f"₿ BTC: ${p}")
 
 async def eth(update, context):
     p = requests.get("https://api.coinbase.com/v2/prices/ETH-USD/spot").json()["data"]["amount"]
-    await update.message.reply_text(f"Ξ ETH Price: ${p}")
+    await update.message.reply_text(f"Ξ ETH: ${p}")
 
 async def doge(update, context):
     p = requests.get("https://api.coinbase.com/v2/prices/DOGE-USD/spot").json()["data"]["amount"]
-    await update.message.reply_text(f"🐶 DOGE Price: ${p}")
+    await update.message.reply_text(f"🐶 DOGE: ${p}")
 
-# ===================================================================
-# 🛠 TOOLS
-# ===================================================================
 
-# BIN Checker
+# ------ TOOLS ------
 async def bin_lookup(update, context):
     if not context.args:
         return await update.message.reply_text("Use: /bin 457173")
 
-    bin_number = context.args[0]
-    r = requests.get(f"https://lookup.binlist.net/{bin_number}").json()
+    b = context.args[0]
+    r = requests.get(f"https://lookup.binlist.net/{b}").json()
 
     msg = f"""
 💳 *BIN Lookup*
-
 Bank: {r['bank']['name']}
 Country: {r['country']['name']}
-Scheme: {r['scheme']}
 Type: {r['type']}
+Scheme: {r['scheme']}
 """
     await update.message.reply_text(msg, parse_mode="Markdown")
 
-# Fake Info
+
 async def fake(update, context):
     r = requests.get("https://randomuser.me/api/").json()['results'][0]
 
     msg = f"""
-🧪 *Fake Identity*
+🧪 Fake Info
 Name: {r['name']['first']} {r['name']['last']}
 Email: {r['email']}
 Phone: {r['phone']}
 Country: {r['location']['country']}
 """
-    await update.message.reply_text(msg, parse_mode="Markdown")
+    await update.message.reply_text(msg)
 
-# Password Generate
+
 async def pwd(update, context):
     chars = string.ascii_letters + string.digits
     ps = "".join(random.choice(chars) for _ in range(12))
-    await update.message.reply_text(f"🔐 Password: `{ps}`", parse_mode="Markdown")
+    await update.message.reply_text(f"🔐 `{ps}`", parse_mode="Markdown")
 
-# QR Code
+
 async def qrcode(update, context):
     if not context.args:
-        return await update.message.reply_text("Use: /qrcode hello")
-    text = " ".join(context.args)
-    url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={text}"
-    await update.message.reply_photo(url)
+        return await update.message.reply_text("Use: /qrcode text")
+    t = " ".join(context.args)
+    u = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={t}"
+    await update.message.reply_photo(u)
 
-# ===================================================================
-# 👑 OWNER FUNCTIONS
-# ===================================================================
 
+# ------ OWNER ------
 async def stats(update, context):
     if update.message.chat.id != OWNER_ID:
-        return await update.message.reply_text("❌ Owner Only Access")
-    await update.message.reply_text("📊 Bot Running Successfully.\nOwner: ReXe")
+        return await update.message.reply_text("❌ Not Allowed")
+    await update.message.reply_text("📊 Bot Running Perfectly.")
+
 
 async def broadcast(update, context):
     if update.message.chat.id != OWNER_ID:
-        return await update.message.reply_text("❌ Owner Only Access")
+        return await update.message.reply_text("❌ Not Allowed")
     msg = " ".join(context.args)
-    await update.message.reply_text("Sent to All Users (Demo Mode).")
+    await update.message.reply_text("Broadcast Sent (Demo Mode)")
 
-# ===================================================================
-# MAIN BOT RUN
-# ===================================================================
 
+# ------ MAIN ------
 async def main():
     app = ApplicationBuilder().token(TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(button_handler))
 
-    # OSINT
     app.add_handler(CommandHandler("ip", ip_lookup))
     app.add_handler(CommandHandler("user", user_osint))
     app.add_handler(CommandHandler("whois", whois))
     app.add_handler(CommandHandler("instainfo", instainfo))
 
-    # Crypto
     app.add_handler(CommandHandler("btc", btc))
     app.add_handler(CommandHandler("eth", eth))
     app.add_handler(CommandHandler("doge", doge))
 
-    # Tools
     app.add_handler(CommandHandler("bin", bin_lookup))
     app.add_handler(CommandHandler("fake", fake))
     app.add_handler(CommandHandler("pwd", pwd))
     app.add_handler(CommandHandler("qrcode", qrcode))
 
-    # Owner
     app.add_handler(CommandHandler("stats", stats))
     app.add_handler(CommandHandler("broadcast", broadcast))
 
     await app.run_polling()
 
-# Run
 import asyncio
 asyncio.run(main())
