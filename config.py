@@ -1,0 +1,7 @@
+# config.py
+
+BOT_TOKEN = "8743764310:AAEMf60TbwvipGC9N6f2xRFgWvPdDZb7j0I"
+
+BOT_NAME = "INFO-REXE-BOT"
+OWNER_ID = 7027444755
+OWNER_USERNAME = "@Cyberrexetools_bot"
