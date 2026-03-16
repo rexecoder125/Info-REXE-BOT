@@ -8,22 +8,16 @@ from telegram.ext import (
 TOKEN = "8743764310:AAEMf60TbwvipGC9N6f2xRFgWvPdDZb7j0I"
 
 
-# ==========================
-#        COMMANDS
-# ==========================
-
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "🔥 INFO-REXE-BOT Activated!\n"
-        "Menu Ready:\n"
         "[ OSINT ]\n[ Crypto ]\n[ Tools ]\n[ Generate ]\n[ Owner ]"
     )
 
 
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "📌 Commands List:\n"
-        "/start\n/help\n/osint\n/crypto\n/tools\n/generate\n/owner"
+        "📌 Commands:\n/start\n/help\n/osint\n/crypto\n/tools\n/generate\n/owner"
     )
 
 
@@ -32,24 +26,20 @@ async def osint(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def crypto(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("💰 Crypto Scanner Coming…")
+    await update.message.reply_text("💰 Crypto Tools Soon…")
 
 
 async def tools(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("🛠 Tools Coming Soon…")
+    await update.message.reply_text("🛠 Tools Loading…")
 
 
 async def generate(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("⚙️ Generator Tools Loading…")
+    await update.message.reply_text("⚙️ Generator Tools Coming…")
 
 
 async def owner(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("👑 Owner: @Cyberrexetools_bot")
 
-
-# ==========================
-#     BOT APPLICATION
-# ==========================
 
 app = ApplicationBuilder().token(TOKEN).build()
 
